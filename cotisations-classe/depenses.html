@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dépenses - Gestion des Cotisations</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Barre d'authentification -->
+    <div id="auth-bar" class="auth-bar">
+        <div class="container auth-content">
+            <div class="user-info">
+                <div class="user-avatar" id="user-avatar">U</div>
+                <span id="user-email">utilisateur@exemple.com</span>
+                <span id="admin-badge" class="admin-badge" style="display: none;">
+                    <i class="fas fa-crown"></i> Administrateur
+                </span>
+            </div>
+            <div>
+                <button class="btn btn-sm btn-warning" id="backup-btn">
+                    <i class="fas fa-download"></i>
+                    Sauvegarder
+                </button>
+                <button class="btn btn-sm btn-danger" id="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Déconnexion
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-piggy-bank"></i>
+                    Gestion des Cotisations
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> Tableau de bord</a></li>
+                        <li><a href="eleves.html"><i class="fas fa-users"></i> Élèves</a></li>
+                        <li><a href="cotisations.html"><i class="fas fa-hand-holding-usd"></i> Cotisations</a></li>
+                        <li><a href="recherche.html"><i class="fas fa-search"></i> Recherche</a></li>
+                        <li><a href="depenses.html" class="active"><i class="fas fa-receipt"></i> Dépenses</a></li>
+                        <li><a href="resume.html"><i class="fas fa-chart-bar"></i> Résumé</a></li>
+                        <li class="auth-required"><a href="admin.html"><i class="fas fa-cog"></i> Administration</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card-header">
+            <div class="card-title">
+                <i class="fas fa-receipt"></i>
+                Gestion des dépenses
+            </div>
+            <button class="btn btn-primary" id="add-expense-btn">
+                <i class="fas fa-plus"></i>
+                Ajouter une dépense
+            </button>
+        </div>
+
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Montant</th>
+                        <th>Catégorie</th>
+                        <th class="auth-required">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="expenses-list">
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <i class="fas fa-receipt"></i>
+                            <h3>Aucune dépense enregistrée</h3>
+                            <p>Les dépenses de la classe apparaîtront ici</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal d'ajout de dépense -->
+    <div id="expense-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-receipt"></i> Ajouter une dépense</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="expense-form">
+                <div class="form-group">
+                    <label for="expense-description"><i class="fas fa-pen"></i> Description</label>
+                    <input type="text" id="expense-description" required placeholder="Description de la dépense">
+                </div>
+                <div class="form-group">
+                    <label for="expense-amount"><i class="fas fa-money-bill-wave"></i> Montant (FCFA)</label>
+                    <input type="number" id="expense-amount" min="0" step="100" required placeholder="Montant en FCFA">
+                </div>
+                <div class="form-group">
+                    <label for="expense-category"><i class="fas fa-tag"></i> Catégorie</label>
+                    <select id="expense-category" required>
+                        <option value="">Sélectionner une catégorie</option>
+                        <option value="Matériel">Matériel</option>
+                        <option value="Sortie">Sortie</option>
+                        <option value="Fournitures">Fournitures</option>
+                        <option value="Autre">Autre</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="expense-date"><i class="fas fa-calendar"></i> Date</label>
+                    <input type="date" id="expense-date" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-save"></i>
+                    Enregistrer la dépense
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/firebase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/functions.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Vérifier l'authentification
+            await requireAuth();
+            
+            // Initialiser les dates
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('expense-date').value = today;
+            
+            // Charger les données
+            await loadExpenses();
+            displayExpenses();
+            
+            // Événements
+            document.getElementById('add-expense-btn').addEventListener('click', function() {
+                document.getElementById('expense-modal').style.display = 'flex';
+            });
+            
+            document.getElementById('expense-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await addExpenseFromForm();
+            });
+            
+            // Fermer les modals
+            document.querySelectorAll('.close').forEach(closeBtn => {
+                closeBtn.addEventListener('click', function() {
+                    this.closest('.modal').style.display = 'none';
+                });
+            });
+            
+            window.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.style.display = 'none';
+                }
+            });
+        });
+        
+        // Afficher les dépenses
+        function displayExpenses() {
+            const container = document.getElementById('expenses-list');
+            
+            if (expenses.length === 0) {
+                container.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <i class="fas fa-receipt"></i>
+                            <h3>Aucune dépense enregistrée</h3>
+                            <p>Les dépenses de la classe apparaîtront ici</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            // Trier par date (du plus récent au plus ancien)
+            const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            sortedExpenses.forEach(expense => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${formatDate(expense.date)}</td>
+                    <td>${expense.description}</td>
+                    <td>${formatCurrency(expense.amount)}</td>
+                    <td><span class="status-pending">${expense.category}</span></td>
+                    <td class="auth-required">
+                        <button class="btn btn-danger btn-sm" onclick="deleteExpense('${expense.id}')">
+                            <i class="fas fa-trash"></i>
+                            Supprimer
+                        </button>
+                    </td>
+                `;
+                container.appendChild(row);
+            });
+        }
+        
+        // Supprimer une dépense
+        async function deleteExpense(expenseId) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cette dépense ?')) {
+                return;
+            }
+            
+            try {
+                await db.collection('expenses').doc(expenseId).delete();
+                showNotification('Dépense supprimée avec succès');
+                
+                // Recharger les données
+                await loadExpenses();
+                displayExpenses();
+                
+            } catch (error) {
+                console.error('Erreur suppression dépense:', error);
+                showNotification('Erreur lors de la suppression', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
