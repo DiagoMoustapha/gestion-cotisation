@@ -19,6 +19,26 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 const storage = firebase.storage();
 
+// =============================================
+// CONFIGURATION FIREBASE - À COPIER COLLER
+// =============================================
+
+const firebaseConfig = {
+    apiKey: "AIzaSyC...", // VOTRE VRAIE API KEY
+    authDomain: "votre-projet.firebaseapp.com",
+    projectId: "votre-projet-id", 
+    storageBucket: "votre-projet.appspot.com",
+    messagingSenderId: "123456789",
+    appId: "1:123456789:web:abcdef123456"
+};
+
+// Initialiser Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+console.log('🔥 Firebase initialisé');
+
 // Variables globales
 let currentUser = null;
 let isAdmin = false;
@@ -27,4 +47,5 @@ let contributions = [];
 let expenses = [];
 
 console.log('🔥 Firebase configuré avec succès');
+
 
