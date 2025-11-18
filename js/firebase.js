@@ -27,3 +27,4 @@ let contributions = [];
 let expenses = [];
 
 console.log('🔥 Firebase configuré avec succès');
+
