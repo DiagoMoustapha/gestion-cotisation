@@ -1,3 +1,36 @@
+// js/auth.js - AJOUTER AU DÉBUT SEULEMENT
+console.log("🔐 Auth.js chargé");
+
+// Attendre que Firebase soit initialisé
+function waitForAuth() {
+    if (typeof auth === 'undefined') {
+        console.log('⏳ En attente de Firebase Auth...');
+        setTimeout(waitForAuth, 100);
+        return;
+    }
+    console.log('✅ Auth prêt, initialisation...');
+    initAuth();
+}
+
+// Le reste de votre code auth.js EXISTANT reste inchangé
+function initAuth() {
+    // TOUT VOTRE CODE AUTH EXISTANT RESTE ICI
+    // Ne changez rien d'autre dans auth.js
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            console.log('✅ Utilisateur connecté:', user.email);
+            // ... votre code existant
+        } else {
+            console.log('❌ Aucun utilisateur connecté');
+            // ... votre code existant
+        }
+    });
+    
+    // ... tout le reste de votre code auth.js
+}
+
+// Démarrer l'attente
+waitForAuth();
 // =============================================
 // GESTION DE L'AUTHENTIFICATION - CORRIGÉ
 // =============================================
@@ -171,4 +204,5 @@ document.addEventListener('DOMContentLoaded', function() {
         currentUser = user;
         checkAdminStatus(user);
     }
+
 });
