@@ -1,3 +1,30 @@
+// js/database.js - AJOUTER AU DÉBUT SEULEMENT
+console.log("🗄️ Database.js chargé");
+
+function waitForDB() {
+    if (typeof db === 'undefined') {
+        console.log('⏳ En attente de Firestore DB...');
+        setTimeout(waitForDB, 100);
+        return;
+    }
+    console.log('✅ DB prêt, initialisation...');
+    initDatabase();
+}
+
+function initDatabase() {
+    // TOUT VOTRE CODE DATABASE EXISTANT RESTE ICI
+    // Ne changez rien d'autre
+    console.log('🔧 Initialisation des données...');
+    
+    // Votre code initializeData() existant
+    initializeData();
+    
+    // Vos fonctions loadStudents(), etc. existantes
+}
+
+// Démarrer l'attente
+waitForDB();
+
 // =============================================
 // BASE DE DONNÉES FIREBASE FONCTIONNELLE
 // =============================================
