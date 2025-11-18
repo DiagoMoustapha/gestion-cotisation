@@ -1,6 +1,11 @@
-// =============================================
-// CONFIGURATION FIREBASE - À MODIFIER AVEC VOS VALEURS
-// =============================================
+// Charger la configuration Firebase
+console.log("🚀 Chargement de la configuration Firebase...");
+
+// Importer les modules Firebase (assurez-vous que les scripts sont dans index.html)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCgyMUmbFoHRAFxEWu8t5qlb6KbLTdsV7w",
@@ -12,40 +17,16 @@ const firebaseConfig = {
 };
 
 // Initialiser Firebase
-firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 
-// Références aux services
-const db = firebase.firestore();
-const auth = firebase.auth();
-const storage = firebase.storage();
+// Initialiser les services
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
-// =============================================
-// CONFIGURATION FIREBASE - À COPIER COLLER
-// =============================================
+// Exporter pour utilisation globale
+window.auth = auth;
+window.db = db;
+window.storage = storage;
 
-const firebaseConfig = {
-    apiKey: "AIzaSyC...", // VOTRE VRAIE API KEY
-    authDomain: "votre-projet.firebaseapp.com",
-    projectId: "votre-projet-id", 
-    storageBucket: "votre-projet.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "1:123456789:web:abcdef123456"
-};
-
-// Initialiser Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
-
-console.log('🔥 Firebase initialisé');
-
-// Variables globales
-let currentUser = null;
-let isAdmin = false;
-let students = [];
-let contributions = [];
-let expenses = [];
-
-console.log('🔥 Firebase configuré avec succès');
-
-
+console.log("✅ Firebase initialisé avec succès");
